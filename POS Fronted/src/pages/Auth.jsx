@@ -7,6 +7,8 @@ import Login from '../components/auth/Login';
 const Auth = () => {
 
   const [isRegister, setIsRegister] = useState(false);
+  console.log("BACKEND URL =", import.meta.env.VITE_BACKEND_URL);
+
 
   return (
     <div className='flex min-h-screen w-full'>
