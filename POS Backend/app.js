@@ -13,7 +13,7 @@ connectDB();
 
 // Middlewares
 app.use(cors({
-    origin: "curious-gnome-25edb6.netlify.app",
+    origin: "https://pos-restorant-management.vercel.app/",
     credentials: true
 }));
 
