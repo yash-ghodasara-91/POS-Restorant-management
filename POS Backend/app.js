@@ -13,7 +13,7 @@ connectDB();
 
 // Middlewares
 app.use(cors({
-    origin: "https://pos-restorant-management.vercel.app",
+    origin: ["https://pos-restorant-management.vercel.app", "http://localhost:5173"],
     credentials: true
 }));
 
