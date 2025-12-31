@@ -13,7 +13,7 @@ connectDB();
 
 // Middlewares
 app.use(cors({
-    origin: "http://localhost:5174","https://graceful-sundae-52bc6f.netlify.app/",
+    origin: "https://graceful-sundae-52bc6f.netlify.app/",
     credentials: true
 }));
 
