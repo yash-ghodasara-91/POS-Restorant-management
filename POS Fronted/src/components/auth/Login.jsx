@@ -14,6 +14,9 @@ const Login = () => {
         password: ''
     });
 
+    console.log("BACKEND URL =", import.meta.env.VITE_BACKEND_URL);
+
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
