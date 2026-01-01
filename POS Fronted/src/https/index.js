@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const VITE_BACKEND_URL= ["https://pos-restorant-management.onrender.com", "http://localhost:8000"];
+const VITE_BACKEND_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:8000"
+    : "https://pos-restorant-management.onrender.com";
 
 
 const api = axios.create({

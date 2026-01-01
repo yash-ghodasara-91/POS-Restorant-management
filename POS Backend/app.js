@@ -12,9 +12,23 @@ const PORT = config.PORT;
 connectDB();
 
 // Middlewares
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://pos-restorant-management.vercel.app"
+];
+
 app.use(cors({
-    origin: ["https://pos-restorant-management.vercel.app", "http://localhost:5173"],
-    credentials: true
+  origin: function (origin, callback) {
+    // allow requests like Postman (no origin)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
 }));
 
 app.use(express.json()); //parse incoming request in json format
