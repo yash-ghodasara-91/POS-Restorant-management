@@ -38,7 +38,8 @@ const CartInfo = () => {
               <div className="bg-[#1f1f1f] rounded-lg px-4 py-4 mb-2">
                 <div className="flex items-center justify-between">
                   <h1 className="text-[#ababab] font-semibold tracking-wide text-md">
-                    {item.name}
+                    {item.name} 
+                    <span>{item.catname}</span>
                   </h1>
                   <p className="text-[#ababab] font-semibold">
                     {item.quantity}

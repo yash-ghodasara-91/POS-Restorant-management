@@ -15,12 +15,12 @@ const RecentOrder = () => {
           </a>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#1f1f1f] rounded-[15px] px-6 py-4 mx-8">
+        <div className="flex items-center gap-2 bg-[#1f1f1f] rounded-[15px] px-6 py-5 mx-5 md:mx-8 sm:mx-12 lg:mx-16">
           <FaSearch className="text-[#f5f5f5]" />
           <input
             type="text"
             placeholder="Search : Recent Orders"
-            className="bg-[#1f1f1f] outline-none text-[#f5f5f5]"
+            className="bg-[#1f1f1f] outline-none text-[#f5f5f5] w-full"
           />
         </div>
 
