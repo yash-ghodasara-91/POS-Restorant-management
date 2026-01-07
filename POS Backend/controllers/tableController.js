@@ -7,7 +7,7 @@ const addTable = async (req, res, next) => {
     try {
 
 
-        const { tableNo } = req.body;
+        const { tableNo, seats } = req.body;
 
         if (!tableNo) {
             const error = createHttpError(400, "Please provide a table number!");
@@ -21,7 +21,7 @@ const addTable = async (req, res, next) => {
             return next(error);
         }
 
-        const newTable = new Table({ tableNo });
+        const newTable = new Table({ tableNo, seats });
         await newTable.save();
 
         res.status(201).json({
@@ -39,7 +39,10 @@ const getTables = async (req, res, next) => {
 
     try {
 
-        const tables = await Table.find();
+        const tables = await Table.find().populate({
+            path: "currentOrder",
+            select: "customerDetailes"
+        });
         res.status(200).json({ success: true, data: tables });
 
     } catch (error) {

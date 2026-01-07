@@ -28,10 +28,10 @@ const Header = () => {
     }
 
     return (
-        <header className="flex flex-wrap items-center justify-between gap-3 py-3 px-5 lg:px-8 bg-[#1a1a1a]">
+        <header className="flex fl ex-wrap items-center justify-between gap-3 py-3 px-5 lg:px-8 bg-[#1a1a1a] cursor-pointer">
 
             {/* Logo */}
-            <div className="flex items-center gap-2">
+            <div onClick={() => navigate("/")} className="flex items-center gap-2">
                 <img src={logo} className="h-9 w-9" alt="logo" />
                 <h1 className="text-lg font-semibold text-[#f5f5f5]">RestroOrder</h1>
             </div>
@@ -42,7 +42,7 @@ const Header = () => {
                 <input
                     type="text"
                     placeholder="Search"
-                    className="bg-transparent outline-none text-[#f5f5f5] w-full"
+                    className="bg-transparent outline-none text-[#f5f5f5] w-99"
                 />
             </div>
 

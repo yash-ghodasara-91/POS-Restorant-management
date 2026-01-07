@@ -23,8 +23,7 @@ const Menu = () => {
     w-full
     max-w-full
     overflow-x-hidden
-  "
-    >
+  ">
       {/* LEFT SECTION */}
       <div className="xl:flex-[3] w-full max-w-full overflow-x-hidden">
 

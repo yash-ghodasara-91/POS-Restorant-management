@@ -45,6 +45,8 @@ app.get("/", (req, res) => {
 app.use("/api/user", require("./routes/userRoute.js"))
 app.use("/api/order", require("./routes/orderRoute"))
 app.use("/api/table", require("./routes/tableRoute"))
+app.use("/api/payment", require("./routes/paymentRoute.js"))
+
 app.get("/", (req, res) => {res.send("Hello from Pos Server")})
 
 // Global Error Handler
