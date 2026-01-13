@@ -13,7 +13,7 @@ const MenuContainer = () => {
 
   const increment = (id) => {
     setItemId(id);
-    if (itemCount >= 5) return;
+    if (itemCount >= 10) return;
     setItemCount((prev) => prev + 1);
   };
 
@@ -24,15 +24,23 @@ const MenuContainer = () => {
   };
 
   const handleAddToCart = (item) => {
-    if(itemCount === 0 ) return;
+    if (itemCount === 0) return;
 
-    const {name, price} =item;
-    const newObj = {id: new Date(), name, pricePerQuantity: price, Quantity:
-      itemCount, price: price * itemCount };
+    const { name, price } = item;
 
-     Dispatch(addItem(newObj));
-     setItemCount(0);  
-  }
+    const newObj = {
+      id: Date.now(),                       // ✅ FIX: serializable ID
+      createdAt: new Date().toISOString(),  // ✅ FIX: date safe format
+      name,
+      pricePerQuantity: price,
+      Quantity: itemCount,
+      price: price * itemCount
+    };
+
+    Dispatch(addItem(newObj));
+    setItemCount(0);
+  };
+
 
   return (
     <>
@@ -64,7 +72,7 @@ const MenuContainer = () => {
           );
         })}
       </div>
- 
+
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
       <div className="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 px-10 py-4 w-[100%]">
@@ -78,7 +86,7 @@ const MenuContainer = () => {
                 <h1 className="text-[#f5f5f5] text-lg font-semibold">
                   {item.name}
                 </h1>
-                <button onClick={() => handleAddToCart(item)} className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg"><FaShoppingCart size={20}/></button>
+                <button onClick={() => handleAddToCart(item)} className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg"><FaShoppingCart size={20} /></button>
               </div>
               <div className="flex items-center justify-between w-full">
                 <p className="text-[#f5f5f5] text-xl font-bold">

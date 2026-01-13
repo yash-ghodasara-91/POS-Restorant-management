@@ -4,29 +4,33 @@ const createHttpError = require("http-errors");
 
 
 const addOrder = async (req, res, next) => {
+  try {
 
-    try {
+    console.log("📦 ORDER BODY RECEIVED:", req.body);
 
-        const order = new Order(req.body);
-        await order.save();
-        res.status(201).json({
-            success: true,
-            message: "Order created!",
-            data: order
-        });
+    const order = new Order(req.body);
+    await order.save();
 
+    console.log("✅ ORDER SAVED:", order._id);
 
+    res.status(201).json({
+      success: true,
+      message: "Order created!",
+      data: order
+    });
 
-    } catch (error) {
-        next(error)
-    }
-}
+  } catch (error) {
+    console.error("❌ ORDER SAVE ERROR:", error.message);
+    next(error);
+  }
+};
+
 
 const getOrderById = async (req, res, next) => {
 
     try {
 
-        const {id} = req.params;
+        const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             const error = createHttpError(404, "Invalid ID!");
@@ -40,7 +44,7 @@ const getOrderById = async (req, res, next) => {
             return next(error);
         }
 
-        res.status(200).json({success: true, data: order});
+        res.status(200).json({ success: true, data: order });
 
     } catch (error) {
         next(error)
@@ -49,9 +53,9 @@ const getOrderById = async (req, res, next) => {
 
 const getOrders = async (req, res, next) => {
     try {
-        
+
         const orders = await Order.find();
-        res.status(200).json({ data: orders});
+        res.status(200).json({ data: orders });
 
     } catch (error) {
         next(error)
@@ -61,9 +65,9 @@ const getOrders = async (req, res, next) => {
 
 const updateOrder = async (req, res, next) => {
     try {
-        
-        const {orderStatus} = req.body;
-        const {id} = req.params;
+
+        const { orderStatus } = req.body;
+        const { id } = req.params;
         const order = await Order.findByIdAndUpdate(
             id,
             { orderStatus },
@@ -71,7 +75,7 @@ const updateOrder = async (req, res, next) => {
         );
 
         if (!order) {
-             const error = createHttpError(404, "Order not found!");
+            const error = createHttpError(404, "Order not found!");
             return next(error);
         }
 

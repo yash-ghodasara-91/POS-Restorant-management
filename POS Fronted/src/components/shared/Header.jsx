@@ -28,7 +28,7 @@ const Header = () => {
     }
 
     return (
-        <header className="flex fl ex-wrap items-center justify-between gap-3 py-3 px-5 lg:px-8 bg-[#1a1a1a] cursor-pointer">
+        <header className="flex flex-wrap items-center justify-between gap-3 py-3 px-5 lg:px-8 bg-[#1a1a1a] cursor-pointer">
 
             {/* Logo */}
             <div onClick={() => navigate("/")} className="flex items-center gap-2">

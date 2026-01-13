@@ -12,7 +12,7 @@ const Tables = () => {
   const { enqueueSnackbar } = useSnackbar();
 
 
-  const {data: resData, isError} = useQuery({
+  const { data: resData, isError } = useQuery({
     queryKey: ['tables'],
     queryFn: async () => {
       return await getTables();
@@ -23,9 +23,6 @@ const Tables = () => {
   if (isError) {
     enqueueSnackbar("Something went Wrong!", { variant: "error" });
   }
-
-  console.log(resData);
-  
 
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
@@ -40,17 +37,15 @@ const Tables = () => {
         <div className="flex items-center justify-around gap-4">
           <button
             onClick={() => setStatus("all")}
-            className={`text-[#ababab] text-lg ${
-              status === "all" && "bg-[#383838] rounded-lg px-5 py-2"
-            } rounded-lg px-5 py-2 font-semibold`}
+            className={`text-[#ababab] text-lg ${status === "all" && "bg-[#383838] rounded-lg px-5 py-2"
+              } rounded-lg px-5 py-2 font-semibold`}
           >
             All
           </button>
           <button
             onClick={() => setStatus("booked")}
-            className={`text-[#ababab] text-lg ${
-              status === "booked" && "bg-[#383838] rounded-lg px-5 py-2"
-            } rounded-lg px-5 py-2 font-semibold`}
+            className={`text-[#ababab] text-lg ${status === "booked" && "bg-[#383838] rounded-lg px-5 py-2"
+              } rounded-lg px-5 py-2 font-semibold`}
           >
             Booked
           </button>
@@ -60,16 +55,17 @@ const Tables = () => {
       <div className="flex flex-wrap gap-5 px-10 py-5 items-center justify-center overflow-y-scroll h-[calc(102vh-4rem-10rem)] scrollbar-hide">
         {
           resData?.data.data.map((table) => {
-            return(
-              <TableCard 
-               id={table._id} 
-               name={table.tableNo} 
-               status={table.status}
-              initials={table?.currentOrder?.customerDetailes.name} 
-              seats={table.seats} />
+            return (
+              <TableCard
+                key={table._id}
+                id={table._id}
+                name={table.tableNo}
+                status={table.status}
+               initials={table?.currentOrder?.customerDetailes?.name}
+                seats={table.seats} />
             )
           })
-        
+
         }
       </div>
 

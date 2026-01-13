@@ -5,19 +5,21 @@ import { useDispatch } from "react-redux";
 import { updateTable } from "../../redux/slices/customerSlice";
 import { FaLongArrowAltRight } from "react-icons/fa";
 
-const TableCard = ({ key, name, status, initials, seats }) => {
+const TableCard = ({  id,  name, status, initials, seats }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
   const handleClick = (name) => {
     if (status === "Booked") return;
-    dispatch(updateTable({tableNo: name}))
+
+    const table = {tableId: id, tableNo: name}
+    dispatch(updateTable({table}))
     navigate(`/menu`);
   };
 
   return (
     <div
       onClick={() => handleClick(name)}
-      key={key}
+      key={id}
       className="w-[340px] hover:bg-[#2c2c2c] bg-[#262626] rounded-lg p-4 cursor-pointer shadeow"
     >
       <div className="flex justify-between items-center px-1">
