@@ -1,5 +1,18 @@
 const mongoose = require("mongoose");
 
+
+const orderItemSchema = new mongoose.Schema({
+    itemId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
+        required: true
+    },
+    name: String,
+    qty: Number,
+    price: Number,
+    total: Number
+});
+
 const orderSchema = new mongoose.Schema({
     customerDetailes: {
         name: {
@@ -37,12 +50,26 @@ const orderSchema = new mongoose.Schema({
             required: true,
         }
     },
-    items: [],
+    // ✅ YAHI ADD KARNA HAI
+   // ✅ YAHI ADD KIYA HAI
+    items: {
+        type: [
+            {
+                name: String,
+                qty: Number,
+                price: Number,
+                total: Number
+            }
+        ],
+        default: []   // 👈 important so length hamesha mile
+    },
+
+
     table: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Table",
     }
-    
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("Order", orderSchema);
