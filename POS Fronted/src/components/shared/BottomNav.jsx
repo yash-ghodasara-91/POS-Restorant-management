@@ -22,7 +22,7 @@ const BottomNav = () => {
   const closeModal = () => setIsModalOpen(false);
 
   const increment = () => {
-    if (guestCount >= 6) return;
+    if (guestCount >= 10) return;
     setGuestCount((prev) => prev + 1);
   };
 

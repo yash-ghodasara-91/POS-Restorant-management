@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Razorpay = require("razorpay");
 
 
 const orderItemSchema = new mongoose.Schema({
@@ -32,6 +33,7 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    
     orderDate: {
         type: Date,
         default: Date.now()
@@ -68,7 +70,14 @@ const orderSchema = new mongoose.Schema({
     table: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Table",
+    },
+    paymentMethod: String,
+
+    paymentData: {
+        Razorpay_order_id: String,
+        Razorpay_payment_id: String,
     }
+
 
 }, { timestamps: true });
 

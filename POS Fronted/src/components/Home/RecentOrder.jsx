@@ -1,8 +1,25 @@
 import React from "react";
 import { FaSearch } from "react-icons/fa";
 import OrderList from "./OrderList";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { enqueueSnackbar } from "notistack";
+import { getOrders } from "../../https";
 
 const RecentOrder = () => {
+
+  const { data: resData, isError } = useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      return await getOrders();
+    },
+    placeholderData: keepPreviousData
+  })
+
+  if (isError) {
+    enqueueSnackbar("Something Went Wrong!", { variant: "error" })
+  }
+
+
   return (
     <div className="px-8 mt-6">
       <div className="bg-[#1a1a1a] w-full min-h-[450px] rounded-lg">
@@ -13,7 +30,7 @@ const RecentOrder = () => {
           <a href="" className="text-[#025cca] text-sm font-semibold">
             View All
           </a>
-        </div>
+        </div >
 
         <div className="flex items-center gap-2 bg-[#1f1f1f] rounded-[15px] px-6 py-5 mx-5 md:mx-8 sm:mx-12 lg:mx-16">
           <FaSearch className="text-[#f5f5f5]" />
@@ -26,14 +43,15 @@ const RecentOrder = () => {
 
         {/* Order List */}
 
-       <div className="mt-4 px-6 overflow-y-scroll h-[300px] scrollbar-hide">
-         <OrderList />
-         <OrderList />
-         <OrderList />
-         <OrderList />
-         <OrderList />
-         <OrderList />
-       </div>
+        <div className="mt-4 px-6 overflow-y-scroll h-[300px] scrollbar-hide">
+          {
+            resData?.data.data.length > 0 ? (
+              resData.data.data.map((order) => {
+                return <OrderList  key={order._id} order={order} />
+              })
+            ) : <p className="col-span-3 text-gray-500 " >No Orders available</p>
+          }
+        </div>
       </div>
     </div>
   );

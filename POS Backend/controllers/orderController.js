@@ -1,28 +1,32 @@
 const { default: mongoose } = require("mongoose");
 const Order = require("../models/orederModel");
 const createHttpError = require("http-errors");
+const Table = require("../models/tableModel")
 
 
-const addOrder = async (req, res, next) => {
+const addOrder = async (req, res) => {
     try {
-
-        console.log("📦 ORDER BODY RECEIVED:", req.body);
-
-        const order = new Order(req.body);
-        await order.populate("table");
+        const order = new Order({
+            ...req.body,
+              razorpayOrderId: req.body.razorpayOrderId // 👈 ADD THIS
+        });
         await order.save();
 
-        console.log("✅ ORDER SAVED:", order._id);
+        // ✅ BOOK TABLE
+        await Table.findByIdAndUpdate(order.table, {
+            status: "Booked",
+            currentOrder: order._id
+        });
 
         res.status(201).json({
             success: true,
-            message: "Order created!",
+            message: "Order created & table booked",
             data: order
         });
 
     } catch (error) {
-        console.error("❌ ORDER SAVE ERROR:", error.message);
-        next(error);
+        console.log(error);
+        res.status(500).json({ success: false });
     }
 };
 
@@ -62,28 +66,42 @@ const getOrders = async (req, res, next) => {
     }
 };
 
-
 const updateOrder = async (req, res, next) => {
     try {
-
-        const { orderStatus } = req.body;
         const { id } = req.params;
-        const order = await Order.findByIdAndUpdate(
-            id,
-            { orderStatus },
-            { new: true }
-        );
+        const { orderStatus } = req.body;
+
+        const order = await Order.findById(id);
 
         if (!order) {
-            const error = createHttpError(404, "Order not found!");
-            return next(error);
+            return res.status(404).json({ message: "Order not found" });
         }
 
-        res.status(200).json({ success: true, message: "Order updated!", data: order });
+        // Update order status
+        order.orderStatus = orderStatus;
+
+        // ✅ IF ORDER COMPLETED
+        if (orderStatus === "Completed") {
+            order.paymentStatus = "Paid";
+
+            // FREE TABLE
+            await Table.findByIdAndUpdate(order.table, {
+                status: "Available",
+                currentOrder: null
+            });
+        }
+
+        await order.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Order updated successfully",
+            data: order
+        });
 
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
 
 module.exports = { addOrder, getOrderById, getOrders, updateOrder }

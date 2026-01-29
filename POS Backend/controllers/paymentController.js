@@ -2,171 +2,120 @@ const Razorpay = require("razorpay");
 const config = require("../config/config");
 const crypto = require("crypto");
 const Payment = require("../models/paymentModel");
+const Order = require("../models/orederModel");
+const Table = require("../models/tableModel");
 
-// const createOrder = async (req, res, next) => {
-
-//     // Initialize Razorpay
-//     const razorpay = new Razorpay({
-//         key_id: config.razorpayKeyId,
-//         key_secret: config.razorpaySecretKey,
-//     });
-//     try {
-//         const { amount } = req.body;
-
-//         const options = {
-//             amount: amount * 100, // Amount in paisa (1 INR = 100 paisa)
-//             currency: "INR",
-//             receipt: `receipt_${Date.now()}`,
-//         };
-
-//         const order = await razorpay.orders.create(options);
-//         res.json({ success: true, order });
-//     } catch (error) {
-//         next(error);
-//     }
-
-// }
-// const verifyPayment = async (req, res, next) => {
-
-//     // VERIFY PAYMENT /api/payment/verify-payment
-//     try {
-//         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-//             req.body;
-
-//         const expectedSignature = crypto
-//             .createHmac("sha256", config.razorpaySecretKey)
-//             .update(razorpay_order_id + "|" + razorpay_payment_id)
-//             .digest("hex");
-
-//         if (expectedSignature === razorpay_signature) {
-//             res.json({ success: true, message: "Payment verified successfully!" });
-//         } else {
-//             const error = createHttpError(400, "Payment verification failed!");
-//             return next(error);
-//         }
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
-
-// ================= NEW CODE ADDED (DO NOT REMOVE ABOVE CODE) =================
-// Reason: amount undefined / decimal / 0 hone par 400 error aa raha tha
-
+// ================= CREATE ORDER =================
 const createOrder = async (req, res) => {
-    try {
-        const { amount } = req.body;
+    const razorpay = new Razorpay({
+        key_id: config.razorpayKeyId,
+        key_secret: config.razorpaySecretKey
+    });
 
-        // 🔴 NEW: validation added
-        const amountInRupees = Number(amount);
-
-        if (!amountInRupees || amountInRupees <= 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid amount received",
-            });
+    const order = await razorpay.orders.create({
+        amount: req.body.amount * 100,
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+        notes: {
+            dbOrderId: req.body.dbOrderId  // 👈 MongoDB Order ID
         }
+    });
 
-        const razorpay = new Razorpay({
-            key_id: config.razorpayKeyId,
-            key_secret: config.razorpaySecretKey,
-        });
-
-        const options = {
-            amount: Math.round(amountInRupees * 100), // 🔴 FIX: decimal safe
-            currency: "INR",
-            receipt: `receipt_${Date.now()}`,
-        };
-
-        const order = await razorpay.orders.create(options);
-
-        return res.status(200).json({
-            success: true,
-            order,
-        });
-    } catch (error) {
-        console.error("Razorpay Order Error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to create Razorpay order",
-        });
-    }
+    res.json({ success: true, order });
 };
-// ================= END NEW CODE =================
 
-const verifyPayment = async (req, res, next) => {
 
-    // VERIFY PAYMENT /api/payment/verify-payment
+
+
+// ================= VERIFY PAYMENT =================
+const verifyPayment = async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-            req.body;
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
 
         const expectedSignature = crypto
             .createHmac("sha256", config.razorpaySecretKey)
             .update(razorpay_order_id + "|" + razorpay_payment_id)
             .digest("hex");
 
-        if (expectedSignature === razorpay_signature) {
-            res.json({ success: true, message: "Payment verified successfully!" });
-        } else {
-            return res.status(400).json({
-                success: false,
-                message: "Payment verification failed!",
-            });
+        if (expectedSignature !== razorpay_signature) {
+            return res.status(400).json({ success: false });
         }
+
+        res.status(200).json({
+            success: true,
+            message: "Payment verified"
+        });
+
     } catch (error) {
-        next(error);
+        res.status(500).json({ success: false });
     }
 };
 
-const webHookVerification = async (req, res, next) => {
 
+
+// ================= WEBHOOK (MAIN LOGIC) =================
+const webHookVerification = async (req, res) => {
     try {
         const secret = config.razorpayWebhookSecret;
         const signature = req.headers["x-razorpay-signature"];
 
-        const body = JSON.stringify(req.body); // Convert payload to string
-
-        // 🛑 Verify the signature
-        const expectedSignature = crypto
+        const expected = crypto
             .createHmac("sha256", secret)
-            .update(body)
+            .update(JSON.stringify(req.body))
             .digest("hex");
 
-        if (expectedSignature === signature) {
-            console.log("✅ Webhook verified:", req.body);
-
-            // ✅ Process payment (e.g., update DB, send confirmation email)
-            if (req.body.event === "payment.captured") {
-                const payment = req.body.payload.payment.entity;
-                console.log(`💰 Payment Captured: ${payment.amount / 100} INR`);
-                // Add Payment Details in Database 
-                const newPayment = new Payment({
-                    paymentId: payment.id,
-                    orderId: payment.order_id,
-                    amount: payment.amount / 100,
-                    currency: payment.currency,
-                    status: payment.status,
-                    method: payment.method,
-                    email: payment.email,
-                    contact: payment.contact,
-                    createdAt: new Date(payment.created_at * 1000)
-                })
-
-                await newPayment.save();
-            }
-
-            res.json({ success: true });
-        } else {
-            const error = createHttpError(400, "❌ Invalid Signature!");
-            return next(error);
+        if (expected !== signature) {
+            return res.status(400).json({ message: "Invalid Signature" });
         }
-    } catch (error) {
-        console.log(error);
-        next(error);
+
+        if (req.body.event === "payment.captured") {
+            const payment = req.body.payload.payment.entity;
+
+            // ✅ Save Payment
+            await Payment.create({
+                paymentId: payment.id,
+                orderId: payment.order_id,
+                amount: payment.amount / 100,
+                currency: payment.currency,
+                status: payment.status,
+                method: payment.method,
+                email: payment.email,
+                contact: payment.contact
+            });
+
+            // ✅ FIND ORDER USING RAZORPAY ORDER ID
+            const order = await Order.findOneAndUpdate(
+                { razorpayOrderId: payment.order_id },
+                {
+                    paymentStatus: "Paid",
+                    orderStatus: "Completed"
+                },
+                { new: true }
+            );
+
+            // ✅ FREE TABLE
+            if (order?.table) {
+                await Table.findByIdAndUpdate(order.table, {
+                    status: "Available",
+                    currentOrder: null
+                });
+            }
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false });
     }
-}
+};
 
 
-
-module.exports = { createOrder, verifyPayment, webHookVerification }
+module.exports = {
+    createOrder,
+    verifyPayment,
+    webHookVerification
+};

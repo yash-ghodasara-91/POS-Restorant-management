@@ -5,8 +5,9 @@ import { MdRestaurantMenu } from "react-icons/md";
 import MenuContainer from "../components/menu/MenuContainer";
 import CustomerInfo from "../components/menu/CustomerInfo";
 import CartInfo from "../components/menu/CartInfo";
-import BillInfo from "../components/menu/BillInfo";
+
 import { useSelector } from "react-redux";
+import Bill from "../components/menu/BillI";
 
 const Menu = () => {
   const customerData = useSelector(state => state.customer);
@@ -70,7 +71,7 @@ const Menu = () => {
         <hr className="border-[#2a2a2a] border-t-2" />
         <CartInfo />
         <hr className="border-[#2a2a2a] border-t-2" />
-        <BillInfo />
+        <Bill />
       </div>
 
       {/* BOTTOM NAV */}
