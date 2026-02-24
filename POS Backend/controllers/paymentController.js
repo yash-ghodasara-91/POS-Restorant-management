@@ -7,21 +7,44 @@ const Table = require("../models/tableModel");
 
 // ================= CREATE ORDER =================
 const createOrder = async (req, res) => {
-    const razorpay = new Razorpay({
-        key_id: config.razorpayKeyId,
-        key_secret: config.razorpaySecretKey
-    });
+    try {
+        const { amount, dbOrderId } = req.body;
 
-    const order = await razorpay.orders.create({
-        amount: req.body.amount * 100,
-        currency: "INR",
-        receipt: `receipt_${Date.now()}`,
-        notes: {
-            dbOrderId: req.body.dbOrderId  // 👈 MongoDB Order ID
+        // ✅ validation
+        if (!amount) {
+            return res.status(400).json({
+                success: false,
+                message: "Amount is required"
+            });
         }
-    });
 
-    res.json({ success: true, order });
+        const razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+
+        const order = await razorpay.orders.create({
+            amount: Number(amount) * 100, // paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`,
+            notes: {
+                dbOrderId: dbOrderId || null
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            order
+        });
+
+    } catch (error) {
+        console.error("Razorpay Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 };
 
 
