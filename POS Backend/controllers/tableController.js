@@ -54,6 +54,8 @@ const updateTable = async (req, res, next) => {
 
     try {
 
+        console.log("TABLE UPDATE:", req.params.id, req.body);
+
         const { status, orderId } = req.body;
 
         const { id } = req.params;
@@ -65,7 +67,7 @@ const updateTable = async (req, res, next) => {
 
 
         const table = await Table.findByIdAndUpdate(
-             id,
+            id,
             { status, currentOrder: orderId },
             { new: true }
         );

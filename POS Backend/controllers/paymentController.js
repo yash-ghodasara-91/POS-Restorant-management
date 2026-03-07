@@ -7,6 +7,9 @@ const Table = require("../models/tableModel");
 
 // ================= CREATE ORDER =================
 const createOrder = async (req, res) => {
+
+    console.log("BODY:", req.body);
+console.log("KEY ID:", process.env.RAZORPAY_KEY_ID);
     try {
         const { amount, dbOrderId } = req.body;
 

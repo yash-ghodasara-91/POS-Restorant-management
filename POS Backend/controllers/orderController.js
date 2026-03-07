@@ -5,29 +5,31 @@ const Table = require("../models/tableModel")
 
 
 const addOrder = async (req, res) => {
-    try {
-        const order = new Order({
-            ...req.body,
-              razorpayOrderId: req.body.razorpayOrderId // 👈 ADD THIS
-        });
-        await order.save();
+  try {
+    console.log("ORDER BODY:", req.body); // debug
 
-        // ✅ BOOK TABLE
-        await Table.findByIdAndUpdate(order.table, {
-            status: "Booked",
-            currentOrder: order._id
-        });
+    const order = new Order(req.body);
+    await order.save();
 
-        res.status(201).json({
-            success: true,
-            message: "Order created & table booked",
-            data: order
-        });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false });
+    if (req.body.table) {
+      await Table.findByIdAndUpdate(req.body.table, {
+        status: "Booked",
+        currentOrder: order._id
+      });
     }
+
+    res.status(201).json({
+      success: true,
+      data: order
+    });
+
+  } catch (error) {
+    console.error("AddOrder Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 };
 
 
